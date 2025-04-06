@@ -15,10 +15,13 @@ def page_setup() -> None:
     """
     # -- Page title
     st.title("🔍 Search")
-    
+
     # -- Input fields
     st.subheader("Insira os parâmetros para scraping:")
-    st.text_input("Digite uma URL para scraping:", key="url", )
+    st.text_input(
+        "Digite uma URL para scraping:",
+        key="url",
+    )
     st.slider("Selecione uma profundidade de busca:", 0, 2, 1, key="depth")
 
     # -- Search button
@@ -31,7 +34,7 @@ def page_setup() -> None:
         if not url:
             st.error("Por favor, preencha o campo da URL.")
             return
-        
+
         # -- Validate URL
         parsed_url = urlparse(url)
         if not parsed_url.scheme or not parsed_url.netloc:
@@ -44,17 +47,19 @@ def page_setup() -> None:
             # -- Fetch links from the main page and its subpages
             with st.spinner("Buscando links..."):
                 links = crawler.fetch_links(url, depth)
-            
+
             # -- Check if any links were found
             if not links:
                 st.warning("Nenhum link encontrado.")
                 return
-            
+
             # -- Display the links found
             st.success(f"Links encontrados: {len(links)}")
 
             # -- Display the links in a table
-            st.table([{"Link": link} for link in links[:10]])  # Display only the first 10 links without index
+            st.table(
+                [{"Link": link} for link in links[:10]]
+            )  # Display only the first 10 links without index
         else:
             st.error("Erro ao acessar a página principal.")
 

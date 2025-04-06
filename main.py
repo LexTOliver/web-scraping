@@ -18,7 +18,7 @@ from src.crawler import WebCrawler
 def validate_inputs(url: str, depth: str, keyword1: str, keyword2: str) -> bool:
     """
     Validate the user inputs.
-    
+
     Parameters:
         url - str: The URL to scrape
         depth - int: The depth of the search (0 to 2), being:
@@ -27,7 +27,7 @@ def validate_inputs(url: str, depth: str, keyword1: str, keyword2: str) -> bool:
             2 - the main page, its subpages, and their subpages
         keyword1 - str: The first keyword to search for
         keyword2 - str: The second keyword to search for
-    
+
     Returns:
         bool: True if inputs are valid, False otherwise
     """
@@ -78,7 +78,7 @@ def main():
     # -- Validate the inputs
     if not validate_inputs(url, search_depth, keyword1, keyword2):
         sys.exit()
-    
+
     # -- Create crawler
     crawler = WebCrawler(url)
 
@@ -112,9 +112,10 @@ def main():
     # best_link = analyzer.evaluate_documents(links, keyword1, keyword2)
 
     # if best_link:
-        # print(f"O link mais bem avaliado é: {best_link}")
+    # print(f"O link mais bem avaliado é: {best_link}")
     # else:
-        # print("Nenhum link encontrado ou avaliado.")
+    # print("Nenhum link encontrado ou avaliado.")
+
 
 if __name__ == "__main__":
     main()
