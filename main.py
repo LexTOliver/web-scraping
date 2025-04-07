@@ -15,6 +15,23 @@ from src.crawler import WebCrawler
 # from src.analyzer import DocumentAnalyzer
 
 
+def get_user_inputs() -> tuple:
+    """
+    Get user inputs for URL, search depth, and keywords.
+
+    Returns:
+        tuple: A tuple containing the URL, search depth, and keywords
+    """
+    url = input("Digite a URL para scraping: ")
+    search_depth = input("Digite a profundidade de busca (0 a 2): ")
+    # keyword1 = input("Digite a primeira palavra-chave: ")
+    # keyword2 = input("Digite a segunda palavra-chave: ")
+    keyword1 = "example"
+    keyword2 = "test"
+
+    return url, search_depth, keyword1, keyword2
+
+
 def validate_inputs(url: str, depth: str, keyword1: str, keyword2: str) -> bool:
     """
     Validate the user inputs.
@@ -66,28 +83,55 @@ def validate_inputs(url: str, depth: str, keyword1: str, keyword2: str) -> bool:
     return True
 
 
-def main():
-    # -- Get user input for URL and keywords
-    url = input("Digite a URL para scraping: ")
-    search_depth = input("Digite a profundidade de busca (0 a 2): ")
-    # keyword1 = input("Digite a primeira palavra-chave: ")
-    # keyword2 = input("Digite a segunda palavra-chave: ")
-    keyword1 = "example"
-    keyword2 = "test"
+def crawl(url: str, depth: int) -> list:
+    """
+    Crawl the specified URL and return the list of links found.
 
-    # -- Validate the inputs
-    if not validate_inputs(url, search_depth, keyword1, keyword2):
-        sys.exit()
+    Parameters:
+        url - str: The URL to scrape
+        depth - int: The depth of the search (0 to 2)
 
-    # -- Create crawler
+    Returns:
+        list: A list of links found in the specified URL
+    """
+    # -- Create a WebCrawler instance
     crawler = WebCrawler(url)
 
     # -- Check if the URL is reachable
     if not crawler.check_main_page():
-        sys.exit()
+        return []
 
     # -- Fetch the links from the main page based on the requested depth
-    links = crawler.fetch_links(crawler.main_url, int(search_depth))
+    links = crawler.fetch_links(crawler.main_url, depth)
+    return links
+
+
+def print_links(links: list):
+    """
+    Print the links found in the specified URL.
+
+    Parameters:
+        links - list: A list of links found in the specified URL
+    """
+    # -- Print the links found
+    print(f"Quantidade de links encontrados: {len(links)}")
+    print("Links encontrados:")
+    for count, link in enumerate(links, start=1):
+        if count > 10:
+            break
+        print(f"{count}. {link}")
+
+
+def main():
+    # -- Get user input for URL and keywords
+    url, search_depth, keyword1, keyword2 = get_user_inputs()
+    
+    # -- Validate the inputs
+    if not validate_inputs(url, search_depth, keyword1, keyword2):
+        sys.exit()
+
+    # -- Crawl the specified URL
+    links = crawl(url, int(search_depth))
 
     # -- Check if any links were found
     if not links:
@@ -95,16 +139,7 @@ def main():
         sys.exit()
 
     # -- Print the links found
-    print(f"Quantidade de links no crawler: {len(crawler.visited_links)}")
-    print(f"Quantidade de links encontrados: {len(links)}")
-    print("Links encontrados:")
-    count = 0
-    for link in links:
-        if count >= 10:
-            break
-        # -- Print only the first 10 links
-        count += 1
-        print(f"{count}. {link}")
+    print_links(links)
 
     # TODO:
     # -- Create a DocumentAnalyzer instance and evaluate the documents
