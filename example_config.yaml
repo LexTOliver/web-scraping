@@ -1,0 +1,17 @@
+# This is an example configuration file for a web scraping project.
+# It contains the required settings, such as database connection details.
+
+# Database configuration for MySQL
+# DATABASE:
+#   HOST: localhost               # The host where the database is located
+#   USER: root                    # The username to connect to the database
+#   PASSWORD: abc123-             # The password for the database user
+#   DBNAME: indice                # The name of the database to connect to
+#   DBTYPE: MySQL                 # The type of database (mysql or sqlite)
+#   DBPATH: path/to/database.sql # The path to the SQLite database file
+
+# Database configuration for SQLite
+DATABASE:
+  DBTYPE: SQLite                # The type of database (mysql or sqlite)
+  DBPATH: data/database.db  # The path to the SQLite database file
+#   # Note: The host, user, and password fields are not needed for SQLite

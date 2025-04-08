@@ -10,9 +10,13 @@ Example usage:
 """
 
 import sys
+from time import time
 from urllib.parse import urlparse
 from src.crawler import WebCrawler
+from src.indexer import Indexer
+
 # from src.analyzer import DocumentAnalyzer
+from src.utils.config import load_config
 
 
 def get_user_inputs() -> tuple:
@@ -83,7 +87,7 @@ def validate_inputs(url: str, depth: str, keyword1: str, keyword2: str) -> bool:
     return True
 
 
-def crawl(url: str, depth: int) -> list:
+def crawl(url: str, depth: int) -> tuple:
     """
     Crawl the specified URL and return the list of links found.
 
@@ -92,18 +96,26 @@ def crawl(url: str, depth: int) -> list:
         depth - int: The depth of the search (0 to 2)
 
     Returns:
-        list: A list of links found in the specified URL
+        tuple: A tuple containing a list of links and their contents
     """
     # -- Create a WebCrawler instance
     crawler = WebCrawler(url)
 
     # -- Check if the URL is reachable
     if not crawler.check_main_page():
-        return []
+        return [], []
+
+    # -- Set the time
+    start_time = time()
 
     # -- Fetch the links from the main page based on the requested depth
-    links = crawler.fetch_links(crawler.main_url, depth)
-    return links
+    links, contents = crawler.fetch_links(crawler.main_url, depth)
+
+    # -- Print the time taken
+    elapsed_time = time() - start_time
+    print(f"Tempo de execução: {elapsed_time:.2f} segundos")
+
+    return links, contents
 
 
 def print_links(links: list):
@@ -122,16 +134,65 @@ def print_links(links: list):
         print(f"{count}. {link}")
 
 
+def indexing_links(links: list, db_config: dict) -> bool:
+    """
+    Index the links found in the specified URL.
+
+    Parameters:
+        links - list: A list of links found in the specified URL
+        db_config - dict: The database configuration dictionary
+
+    Returns:
+        bool: True if indexing was successful, False otherwise
+    """
+    # -- Create an Indexer instance
+    indexer = Indexer(db_config)
+
+    # -- Check if the database connection is valid
+    if not indexer.db_connection:
+        print("Erro ao conectar ao banco de dados.")
+        return False
+
+    for link in links:
+        # -- Check if the link is already indexed
+        if indexer.fetch_url(link):
+            print(f"Link já cadastrado: {link}")
+            continue
+
+        # -- Insert the URL into the database
+        url_id = indexer.insert_url(link)
+        if not url_id:
+            print(f"Erro ao cadastrar o link: {link}")
+
+    return True
+
+
 def main():
+    """
+    Main function to run the web scraping and document analysis application.
+    """
+    # INITIALIZATION
+    # ----------------------------------------------------------------------
+    print("BEM-VINDO AO SCRAPESEARCH!")
+
+    # -- Load the configuration file
+    config = load_config("example_config.yaml")
+
+    # INPUTS
+    # ----------------------------------------------------------------------
     # -- Get user input for URL and keywords
     url, search_depth, keyword1, keyword2 = get_user_inputs()
-    
+
     # -- Validate the inputs
     if not validate_inputs(url, search_depth, keyword1, keyword2):
         sys.exit()
 
+    # CRAWLING
+    # ----------------------------------------------------------------------
+    print("\n-----------------------------------------------------")
+    print(f"BUSCANDO LINKS NA URL: {url}")
     # -- Crawl the specified URL
-    links = crawl(url, int(search_depth))
+    links, contents = crawl(url, int(search_depth))
 
     # -- Check if any links were found
     if not links:
@@ -141,6 +202,18 @@ def main():
     # -- Print the links found
     print_links(links)
 
+    # INDEXING
+    # ----------------------------------------------------------------------
+    print("\n-----------------------------------------------------")
+    print("INDEXANDO LINKS ENCONTRADOS...")
+    # -- Index the links found
+    if indexing_links(links, config["DATABASE"]):
+        print("Indexação concluída com sucesso.")
+    else:
+        sys.exit()
+
+    # ANALYSIS
+    # ----------------------------------------------------------------------
     # TODO:
     # -- Create a DocumentAnalyzer instance and evaluate the documents
     # analyzer = DocumentAnalyzer()
