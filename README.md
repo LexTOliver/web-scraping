@@ -4,7 +4,7 @@ This project is designed to work as a Search Engine for a specific website. It a
 
 ## Search Score Criteria
 The application evaluates documents based on the following criteria:
-- **Vector Similarity**: The similarity score between the document and the keywords.
+- **Vector Similarity** (TODO): The similarity score between the document and the keywords.
 - **Keyword Presence**: The number of times the keywords appear in the documents.
 - **Keyword Location**: The position of the keywords (the minimum sum of the two words) in the documents.
 - **Keyword Distance**: The distance between the two keywords in the documents.
@@ -26,8 +26,9 @@ web-scraping-project
 │   │   ├── analyze_page.py   # Streamlit page for document analysis
 │   │   └── crawl_page.py     # Streamlit page for web crawling
 |   ├── utils
-│   |   ├── __init__.py       # Utility functions for the project
-│   |   ├── database.py       # Database interaction functions
+│   |   ├── config.py         # Configuration settings for the application
+│   |   ├── mysql_schema.py   # MySQL schema functions for creating and managing the database
+│   |   ├── sqlite_schema.py  # SQLite schema functions for creating and managing the database
 │   |   └── logger.py         # Logging functions for debugging and tracking
 │   ├── analyzer.py           # Contains the DocumentAnalyzer class for evaluating documents
 │   ├── crawler.py            # Contains the WebCrawler class for fetching content and links
@@ -35,6 +36,7 @@ web-scraping-project
 ├── .gitignore                # Files and directories to be ignored by Git
 ├── .python-version           # Python version for the project
 ├── app.py                    # Streamlit application entry point
+├── example_config.yaml      # Example configuration file for the application
 ├── LICENSE                   # License file for the project
 ├── main.py                   # Entry point of the application
 ├── pyproject.toml            # Project metadata and dependencies
@@ -44,8 +46,9 @@ web-scraping-project
 ```
 
 ## Setup Instructions
-Clone the repository, create a virtual environment and install the required dependencies.
+Clone the repository, create a virtual environment, install the required dependencies and set environment variables with application settings.
 
+### Virtual Environment
 1. With pip:
     ```bash
     python3 -m venv venv
@@ -59,6 +62,15 @@ Clone the repository, create a virtual environment and install the required depe
     source venv/bin/activate  # On Windows use `venv\Scripts\activate`
     uv sync
     ```
+
+### Environment Variables
+The application sets up environment variables in a YAML file (e.g. [`example_config.yaml`](./example_config.yaml)). 
+
+By default, the application uses SQLite for the database, so you can run it without any additional setup. If you want to use MySQL, you need to set up the database and update the connection settings in the `config.yaml` file.
+
+You must:
+- Create the file `config.yaml` in the root directory.
+- Change the reference to `example_config.yaml` to `config.yaml` in the ``main.py`` file.
 
 ## Usage
 You can run the application via command line or through a Streamlit interface.
@@ -101,9 +113,10 @@ You can run the application via command line or through a Streamlit interface.
 ## Main Dependencies
 - BeautifulSoup4, for web scraping
 - spaCy, for natural language processing
-- SQLite3, for database management
+- SQLite3 and PyMySQL, for database management
 - Streamlit, for the web interface
 - requests, for making HTTP requests
+- PyYAML, for configuration file handling
 
 Make sure to check the `requirements.txt` file or `pyproject.toml` for the specific versions of the libraries used in this project.
 
