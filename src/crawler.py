@@ -117,7 +117,13 @@ class WebCrawler:
             link = urlunparse(parsed_url._replace(fragment=""))
 
             # -- Check if the link is valid
-            if link.startswith("http") and link not in self.visited_links:
+            if (
+                link.startswith("http")
+                and link not in self.visited_links
+                and not link.lower().endswith(
+                    (".png", ".jpg", ".jpeg", ".gif", ".bmp", ".svg", ".webp")
+                )
+            ):
                 # -- Add the link to the list
                 links.add(link)
 
