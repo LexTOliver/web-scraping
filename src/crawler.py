@@ -6,7 +6,9 @@ It uses the requests library to fetch web pages and BeautifulSoup to parse HTML 
 
 import requests
 from collections import deque
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from bs4 import BeautifulSoup
+from urllib.parse import urlparse, urlunparse
 
 
 class WebCrawler:
@@ -43,7 +45,7 @@ class WebCrawler:
             response.raise_for_status()  # Raise an error for bad responses
             return True
         except requests.RequestException as e:
-            print(f"Error fetching main page{self.main_url}")
+            print(f"Error fetching main page {self.main_url}")
             print(e)
             return False
 
@@ -66,6 +68,32 @@ class WebCrawler:
             print(f"Error fetching {url}: {e}")
             return ""
 
+    def fetch_multiple_pages(self, urls: list[str]) -> dict:
+        """
+        Fetch multiple pages in parallel using ThreadPoolExecutor.
+
+        Parameters:
+            urls - list: List of URLs to fetch.
+
+        Returns:
+            dict: A dictionary mapping URL to HTML content.
+        """
+        results = {}
+        # -- Use ThreadPoolExecutor to fetch pages in parallel
+        with ThreadPoolExecutor(max_workers=10) as executor:
+            # -- Submit tasks to the executor
+            future_to_url = {executor.submit(self.fetch_page, url): url for url in urls}
+
+            # -- Wait for the tasks to complete and collect results
+            for future in as_completed(future_to_url):
+                url = future_to_url[future]
+                try:
+                    results[url] = future.result()
+                except Exception as e:
+                    print(f"Error fetching {url}: {e}")
+                    results[url] = ""
+        return results
+
     def extract_links(self, html) -> set:
         """
         Extract all links from a HTML content.
@@ -82,8 +110,11 @@ class WebCrawler:
         # -- Find all links in the HTML content
         links = set()
         for link in soup.find_all("a", href=True):
-            # -- Remove the fragment identifier from the link
-            link = link["href"].split("#")[0]
+            # Parse the URL
+            parsed_url = urlparse(link["href"])
+
+            # Remove the fragment
+            link = urlunparse(parsed_url._replace(fragment=""))
 
             # -- Check if the link is valid
             if link.startswith("http") and link not in self.visited_links:
@@ -92,7 +123,7 @@ class WebCrawler:
 
         return links
 
-    def fetch_links(self, url: str, depth: int) -> list:
+    def fetch_links(self, url: str, depth: int) -> tuple:
         """
         Fetch links from the main page and its subpages up to the specified depth using Breadth-First Search (BFS).
 
@@ -101,36 +132,44 @@ class WebCrawler:
             depth - int: The depth of the links to fetch
 
         Returns:
-            list: A list of links found in the page and its subpages
+            tuple: A tuple containing two lists:
+                - all_links: A list of all links found
+                - all_contents: A list of the contents of the pages found
         """
         # -- Initialize a queue for BFS
         queue = deque([(url, 0)])  # current_url, current_depth
         all_links = []
+        all_contents = []
 
         while queue:
-            current_url, current_depth = queue.popleft()
+            batch = []
+            next_queue = deque()
 
-            # -- Skip if the URL has already been visited
-            if current_url in self.visited_links:
-                continue
+            # Collect a batch of URLs at the same depth
+            while queue:
+                current_url, current_depth = queue.popleft()
+                if current_url not in self.visited_links:
+                    self.visited_links.add(current_url)
+                    batch.append((current_url, current_depth))
 
-            # -- Mark the URL as visited
-            self.visited_links.add(current_url)
+            # Fetch pages in parallel
+            urls_to_fetch = [url for url, _ in batch]
+            html_map = self.fetch_multiple_pages(urls_to_fetch)
 
-            # -- Fetch the page content
-            html = self.fetch_page(current_url)
-            self.page_contents.add(html)
+            # Process the fetched pages
+            for (url, depth_level), html in zip(
+                batch, [html_map.get(u, "") for u in urls_to_fetch]
+            ):
+                self.page_contents.add(html)
+                all_links.append(url)
+                all_contents.append(html)
 
-            # -- Add the current URL to the list of all links
-            all_links.append(current_url)
+                if depth_level < depth and html:
+                    links = self.extract_links(html)
+                    for link in links:
+                        if link not in self.visited_links:
+                            next_queue.append((link, depth_level + 1))
 
-            # -- Stop if the maximum depth is reached or the page content is empty
-            if current_depth >= depth or not html:
-                continue
+            queue = next_queue
 
-            # -- Extract links from the page and add them to the queue
-            links = self.extract_links(html)
-            for link in links:
-                queue.append((link, current_depth + 1))
-
-        return all_links
+        return all_links, all_contents
