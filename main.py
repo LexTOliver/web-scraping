@@ -130,6 +130,7 @@ def print_links(links: list):
     print("Links encontrados:")
     for count, link in enumerate(links, start=1):
         if count > 10:
+            print("...")
             break
         print(f"{count}. {link}")
 
@@ -154,11 +155,6 @@ def indexing_links(links: list, db_config: dict) -> bool:
         return False
 
     for link in links:
-        # -- Check if the link is already indexed
-        if indexer.fetch_url(link):
-            print(f"Link já cadastrado: {link}")
-            continue
-
         # -- Insert the URL into the database
         url_id = indexer.insert_url(link)
         if not url_id:

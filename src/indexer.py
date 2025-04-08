@@ -2,8 +2,11 @@
 This module contains the logic for indexing the crawled data.
 It includes functions to connect to the database, insert data, and fetch data.
 """
-# TODO: Change prints to logging
 
+from src.utils.config import get_logger
+
+# -- Initialize the logger
+logger = get_logger()
 
 def _connect_to_database(db_config: dict) -> object:
     """
@@ -88,9 +91,9 @@ class Indexer:
             # -- Commit the changes to the database
             self.db_connection.commit()
         except Exception as e:
-            print(f"Error executing query: {query}")
-            print(f"Parameters: {params}")
-            print(e)
+            logger.error(f"Error executing query: {query}")
+            logger.debug(f"Parameters: {params}")
+            logger.debug(e, exc_info=True)
             return False
 
         return True
@@ -108,7 +111,7 @@ class Indexer:
         # -- Check if the URL already exists in the database
         existing_url = self.fetch_url(url)
         if existing_url:
-            print(f"Url já cadastrada : {url}")
+            logger.info(f"URL already registered: {url}")
             return existing_url[0][0]
 
         # -- Prepare the SQL query
@@ -120,10 +123,10 @@ class Indexer:
 
         # -- Execute the query with the appropriate placeholders
         if self._execute_query(query, (url,)):
-            print(f"URL cadastrada: {url}")
+            logger.info(f"URL successfully registered: {url}")
             return self.cursor.lastrowid
         else:
-            print(f"Erro ao inserir URL: {url}")
+            logger.error(f"Error registering URL: {url}")
             return None
 
     def insert_word(self, word: str) -> int:
@@ -139,7 +142,7 @@ class Indexer:
         # -- Check if the word already exists in the database
         existing_word = self.fetch_word(word)
         if existing_word:
-            print(f"Palavra já cadastrada: {word}")
+            logger.info(f"Word already registered: {word}")
             return existing_word[0][0]
 
         # -- Prepare the SQL query
@@ -150,10 +153,10 @@ class Indexer:
 
         # -- Execute the query with the appropriate placeholders
         if self._execute_query(query, (word,)):
-            print(f"Palavra cadastrada: {word}")
+            logger.info(f"Word successfully registered: {word}")
             return self.cursor.lastrowid
         else:
-            print(f"Erro ao inserir palavra {word}")
+            logger.error(f"Error registering word: {word}")
             return None
 
     def insert_word_location(self, idurl: int, idpalavra: int, localizacao: int):
@@ -168,7 +171,7 @@ class Indexer:
         # -- Check if the word location already exists in the database
         existing_word_location = self.fetch_word_location(idurl, idpalavra, localizacao)
         if existing_word_location:
-            print("Localização da palavra já cadastrada para URL")
+            logger.info("Word location already registered")
             return existing_word_location[0][0]
 
         # -- Prepare the SQL query
@@ -179,9 +182,13 @@ class Indexer:
 
         # -- Execute the query with the appropriate placeholders
         if self._execute_query(query, (idurl, idpalavra, localizacao)):
+            logger.info(
+                f"Word location successfully registered: URL {idurl}, Word {idpalavra}, Location {localizacao}"
+            )
             return self.cursor.lastrowid
         else:
-            print("Erro ao inserir localização da palavra")
+            logger.error("Error registering word location")
+            logger.debug(f"URL: {idurl}, Word: {idpalavra}, Location: {localizacao}")
             return None
 
     def fetch_url(self, url: str) -> list:

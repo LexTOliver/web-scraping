@@ -10,7 +10,10 @@ The schema includes the following tables:
 """
 
 import pymysql
+from src.utils.config import get_logger
 
+# -- Initialize the logger
+logger = get_logger()
 
 def connect_to_database(db_config: dict) -> pymysql.connections.Connection:
     """
@@ -41,7 +44,7 @@ def connect_to_database(db_config: dict) -> pymysql.connections.Connection:
 
     # -- Check if database was created
     if connection is None:
-        print("Failed to create or connect to the database.")
+        logger.error("Failed to create or connect to the database.")
         return None
 
     # -- Check if the database is empty
@@ -82,8 +85,8 @@ def load_sql_file(
                 try:
                     cursor.execute(command)
                 except Exception as e:
-                    print(f"Error executing command on loading data from SQL file: {command}")
-                    print(f"Error: {e}")
+                    logger.error(f"Error executing command on loading data from SQL file: {command}")
+                    logger.debug(e, exc_info=True)
 
     connection.commit()
 

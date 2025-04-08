@@ -10,7 +10,10 @@ The schema includes the following tables:
 """
 
 import sqlite3
+from src.utils.config import get_logger
 
+# -- Initialize the logger
+logger = get_logger()
 
 def connect_to_database(db_config: dict) -> sqlite3.Connection:
     """
@@ -32,7 +35,7 @@ def connect_to_database(db_config: dict) -> sqlite3.Connection:
 
         # -- Check if database was created
         if connection is None:
-            print("Failed to create or connect to the database.")
+            logger.error("Failed to create or connect to the database.")
             return None
 
         # -- Set the connection to use foreign keys
@@ -50,8 +53,8 @@ def connect_to_database(db_config: dict) -> sqlite3.Connection:
             create_tables(connection)
 
     except sqlite3.DatabaseError as e:
-        print("Error connecting to the database:")
-        print(e)
+        logger.error("Error connecting to the database.")
+        logger.debug(e, exc_info=True)
         return None
 
     return connection
@@ -146,8 +149,8 @@ def create_tables(db_connection: sqlite3.Connection) -> None:
         db_connection.commit()
 
     except sqlite3.OperationalError as e:
-        print("Operational error connecting to the database:")
-        print(e)
+        logger.error("Operational error connecting to the database:")
+        logger.debug(e, exc_info=True)
 
     # -- Close the cursor
     cursor.close()

@@ -10,6 +10,10 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, urlunparse
 
+from src.utils.config import get_logger
+
+# -- Initialize the logger
+logger = get_logger()
 
 class WebCrawler:
     """
@@ -45,8 +49,8 @@ class WebCrawler:
             response.raise_for_status()  # Raise an error for bad responses
             return True
         except requests.RequestException as e:
-            print(f"Error fetching main page {self.main_url}")
-            print(e)
+            logger.error(f"Error fetching main page {self.main_url}")
+            logger.debug(e)
             return False
 
     def fetch_page(self, url: str) -> str:
@@ -65,7 +69,8 @@ class WebCrawler:
             response.raise_for_status()  # Raise an error for bad responses
             return response.text
         except requests.RequestException as e:
-            print(f"Error fetching {url}: {e}")
+            logger.error(f"Error fetching {url}")
+            logger.debug(e)
             return ""
 
     def fetch_multiple_pages(self, urls: list[str]) -> dict:
@@ -90,7 +95,8 @@ class WebCrawler:
                 try:
                     results[url] = future.result()
                 except Exception as e:
-                    print(f"Error fetching {url}: {e}")
+                    logger.error(f"Error fetching {url}")
+                    logger.debug(e)
                     results[url] = ""
         return results
 
