@@ -2,6 +2,9 @@
 *.yaml
 !example_config.yaml
 
+# Local database
+data
+!database.db
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
