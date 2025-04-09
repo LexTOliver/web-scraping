@@ -28,8 +28,7 @@ web-scraping-project
 |   ├── utils
 │   |   ├── config.py         # Configuration settings for the application
 │   |   ├── mysql_schema.py   # MySQL schema functions for creating and managing the database
-│   |   ├── sqlite_schema.py  # SQLite schema functions for creating and managing the database
-│   |   └── logger.py         # Logging functions for debugging and tracking
+│   |   └── sqlite_schema.py  # SQLite schema functions for creating and managing the database
 │   ├── analyzer.py           # Contains the DocumentAnalyzer class for evaluating documents
 │   ├── crawler.py            # Contains the WebCrawler class for fetching content and links
 │   └── indexer.py            # Contains the Indexer class for storing and retrieving documents
@@ -51,26 +50,29 @@ Clone the repository, create a virtual environment, install the required depende
 ### Virtual Environment
 1. With pip:
     ```bash
-    python3 -m venv venv
-    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+    python3 -m venv .venv
+    source venv/bin/activate  # On Windows use `.venv\Scripts\activate`
     pip install -r requirements.txt
     ```
 2. With UV:
     ```bash
-    uv init
     uv venv
-    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+    source .venv/bin/activate  # On Windows use `.venv\Scripts\activate`
     uv sync
+
+    spacy download pt_core_news_md  # Download the Portuguese trained pipeline for spaCy
     ```
+
+    Obs.: The spacy pipeline model is not included in the installation process through UV, so it needs to be downloaded separately.
 
 ### Environment Variables
 The application sets up environment variables in a YAML file (e.g. [`example_config.yaml`](./example_config.yaml)). 
 
-By default, the application uses SQLite for the database, so you can run it without any additional setup. If you want to use MySQL, you need to set up the database and update the connection settings in the `config.yaml` file.
+By default, the application uses the example settings (with SQLite and some default settings) for running without any additional setup. However, it is recommended to create a custom configuration file for your specific needs, including database connection settings for MySQL.
 
 You must:
-- Create the file `config.yaml` in the root directory.
-- Change the reference to `example_config.yaml` to `config.yaml` in the ``main.py`` file.
+- Create a `config.yaml` file in the root directory.
+- Change the reference from `example_config.yaml` to `config.yaml` in the necessary files (`main.py`, `app.py`, `src/utils/config.py`). 
 
 ## Usage
 You can run the application via command line or through a Streamlit interface.
