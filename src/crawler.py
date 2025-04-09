@@ -66,16 +66,11 @@ class WebCrawler:
             # -- Try to fetch the page and return the content
             response = requests.get(url)
             response.raise_for_status()  # Raise an error for bad responses
+            # TODO: Improve the encoding detection; it might fail for some pages
+            response.encoding = "utf-8"  # Set UTF-8 encoding
             
-            # -- Parse the HTML content
-            soup = BeautifulSoup(response.text, "lxml")
-
-            # -- Decompose the script and style tags
-            for tags in soup(["script", "style"]):
-                tags.decompose()
-
             # -- Get the text content
-            return soup.get_text(separator=" ", strip=True)
+            return response.text
         except requests.RequestException as e:
             logger.error(f"Error fetching {url}")
             logger.debug(e)
@@ -108,6 +103,26 @@ class WebCrawler:
                     results[url] = ""
         return results
 
+    def extract_content(self, html) -> str:
+        """
+        Extract the content of the page.
+
+        Parameters:
+            html - str: The HTML content of the page
+
+        Returns:
+            str: The text content of the page found in the URL
+        """
+        # -- Parse the HTML content
+        soup = BeautifulSoup(html, "lxml", from_encoding="utf-8")
+
+        # -- Decompose the script and style tags
+        for tags in soup(["script", "style"]):
+            tags.decompose()
+
+        # -- Get the text content
+        return soup.get_text(separator=" ", strip=True)
+
     def extract_links(self, html) -> set:
         """
         Extract all links from a HTML content.
@@ -119,7 +134,7 @@ class WebCrawler:
             set: A set of links found in the HTML content
         """
         # -- Parse the HTML content
-        soup = BeautifulSoup(html, "lxml")
+        soup = BeautifulSoup(html, "lxml", from_encoding="utf-8")
 
         # -- Find all links in the HTML content
         links = set()
@@ -178,7 +193,7 @@ class WebCrawler:
             for (url, depth_level), html in zip(
                 batch, [html_map.get(u, "") for u in urls_to_fetch]
             ):
-                self.visited_links[url] = html
+                self.visited_links[url] = self.extract_content(html)
 
                 if depth_level < depth and html:
                     links = self.extract_links(html)
