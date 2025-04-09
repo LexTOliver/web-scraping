@@ -65,7 +65,7 @@ class Indexer:
             db_config - dict: The database configuration dictionary.
         """
         self.db_connection = _connect_to_database(db_config)
-        self.cursor = self.db_connection.cursor()
+        self.cursor = self.db_connection.cursor() if self.db_connection else None
         self.database_type = db_config["DBTYPE"]
 
     def _execute_query(self, query: str, params: tuple = ()) -> bool:
