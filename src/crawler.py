@@ -33,8 +33,7 @@ class WebCrawler:
 
     def __init__(self, url: str) -> None:
         self.main_url = url
-        self.visited_links = set()
-        self.page_contents = set()
+        self.visited_links = {}
 
     def check_main_page(self):
         """
@@ -125,7 +124,7 @@ class WebCrawler:
             # -- Check if the link is valid
             if (
                 link.startswith("http")
-                and link not in self.visited_links
+                and link not in self.visited_links.keys()
                 and not link.lower().endswith(
                     (".png", ".jpg", ".jpeg", ".gif", ".bmp", ".svg", ".webp")
                 )
@@ -150,9 +149,7 @@ class WebCrawler:
         """
         # -- Initialize a queue for BFS
         queue = deque([(url, 0)])  # current_url, current_depth
-        all_links = []
-        all_contents = []
-
+        
         while queue:
             batch = []
             next_queue = deque()
@@ -160,8 +157,8 @@ class WebCrawler:
             # Collect a batch of URLs at the same depth
             while queue:
                 current_url, current_depth = queue.popleft()
-                if current_url not in self.visited_links:
-                    self.visited_links.add(current_url)
+                if current_url not in self.visited_links.keys():
+                    self.visited_links[current_url] = ""
                     batch.append((current_url, current_depth))
 
             # Fetch pages in parallel
@@ -172,16 +169,14 @@ class WebCrawler:
             for (url, depth_level), html in zip(
                 batch, [html_map.get(u, "") for u in urls_to_fetch]
             ):
-                self.page_contents.add(html)
-                all_links.append(url)
-                all_contents.append(html)
+                self.visited_links[url] = html
 
                 if depth_level < depth and html:
                     links = self.extract_links(html)
                     for link in links:
-                        if link not in self.visited_links:
+                        if link not in self.visited_links.keys():
                             next_queue.append((link, depth_level + 1))
 
             queue = next_queue
 
-        return all_links, all_contents
+        return self.visited_links.keys(), self.visited_links.values()
