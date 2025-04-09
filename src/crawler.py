@@ -66,7 +66,15 @@ class WebCrawler:
             # -- Try to fetch the page and return the content
             response = requests.get(url)
             response.raise_for_status()  # Raise an error for bad responses
+            
+            # -- Parse the HTML content
             soup = BeautifulSoup(response.text, "lxml")
+
+            # -- Decompose the script and style tags
+            for tags in soup(["script", "style"]):
+                tags.decompose()
+
+            # -- Get the text content
             return soup.get_text(separator=" ", strip=True)
         except requests.RequestException as e:
             logger.error(f"Error fetching {url}")
