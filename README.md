@@ -51,7 +51,7 @@ Clone the repository, create a virtual environment, install the required depende
 1. With pip:
     ```bash
     python3 -m venv .venv
-    source venv/bin/activate  # On Windows use `.venv\Scripts\activate`
+    source .venv/bin/activate  # On Windows use `.venv\Scripts\activate`
     pip install -r requirements.txt
     ```
 2. With UV:
