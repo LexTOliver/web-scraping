@@ -67,8 +67,7 @@ class WebCrawler:
             # -- Try to fetch the page and return the content
             response = requests.get(url)
             response.raise_for_status()  # Raise an error for bad responses
-            # TODO: Improve the encoding detection; it might fail for some pages
-            response.encoding = "utf-8"  # Set UTF-8 encoding
+            response.encoding = response.apparent_encoding if response.apparent_encoding else "utf-8"
 
             # -- Get the text content
             return response.text
