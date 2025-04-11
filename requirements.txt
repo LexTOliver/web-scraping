@@ -35,7 +35,6 @@ pip==25.0.1
 preshed==3.0.9
 protobuf==5.29.4
 pt-core-news-md @ https://github.com/explosion/spacy-models/releases/download/pt_core_news_md-3.8.0/pt_core_news_md-3.8.0-py3-none-any.whl
-pt-core-news-sm @ https://github.com/explosion/spacy-models/releases/download/pt_core_news_sm-3.8.0/pt_core_news_sm-3.8.0-py3-none-any.whl
 pyarrow==19.0.1
 pydantic==2.11.3
 pydantic-core==2.33.1
