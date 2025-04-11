@@ -23,9 +23,7 @@ def load_config(file_path: str) -> dict:
     return config
 
 
-def get_logger(
-    file_name: str = "app.log", level: int = logging.INFO
-) -> logging.Logger:
+def get_logger(file_name: str = "app.log", level: int = logging.INFO) -> logging.Logger:
     """
     Get a logger with the specified name and level.
 

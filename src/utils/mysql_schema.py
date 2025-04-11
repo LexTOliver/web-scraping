@@ -15,6 +15,7 @@ from src.utils.config import get_logger
 # -- Initialize the logger
 logger = get_logger()
 
+
 def connect_to_database(db_config: dict) -> pymysql.connections.Connection:
     """
     Connect to MySQL database.
@@ -85,7 +86,9 @@ def load_sql_file(
                 try:
                     cursor.execute(command)
                 except Exception as e:
-                    logger.error(f"Error executing command on loading data from SQL file: {command}")
+                    logger.error(
+                        f"Error executing command on loading data from SQL file: {command}"
+                    )
                     logger.debug(e, exc_info=True)
 
     connection.commit()
@@ -171,6 +174,7 @@ def create_tables(db_connection: pymysql.connections.Connection) -> None:
         create_word_location_table(cursor)
 
     db_connection.commit()
+
 
 def close_database_connection(connection: pymysql.connections.Connection) -> None:
     """

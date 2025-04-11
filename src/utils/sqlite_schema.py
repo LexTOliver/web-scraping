@@ -15,6 +15,7 @@ from src.utils.config import get_logger
 # -- Initialize the logger
 logger = get_logger()
 
+
 def connect_to_database(db_config: dict) -> sqlite3.Connection:
     """
     Connect to SQLite database.
