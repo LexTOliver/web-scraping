@@ -12,13 +12,13 @@ Example usage:
 import sys
 from time import time
 from urllib.parse import urlparse
-from src.crawler import WebCrawler
-from src.indexer import Indexer
-
-# from src.analyzer import DocumentAnalyzer
+from src.models.page_analysis import PageAnalysis, KeywordInfo
+from src.services.analyzer import DocumentAnalyzer
+from src.services.crawler import WebCrawler
+from src.services.indexer import Indexer
 from src.utils.config import load_config
 
-
+# TODO: Add argparse for command line arguments
 def get_user_inputs() -> tuple:
     """
     Get user inputs for URL, search depth, and keywords.
@@ -28,11 +28,9 @@ def get_user_inputs() -> tuple:
     """
     url = input("Digite a URL para scraping: ")
     search_depth = input("Digite a profundidade de busca (0 a 2): ")
-    # keyword1 = input("Digite a primeira palavra-chave: ")
-    # keyword2 = input("Digite a segunda palavra-chave: ")
-    keyword1 = "example"
-    keyword2 = "test"
-
+    keyword1 = input("Digite a primeira palavra-chave: ")
+    keyword2 = input("Digite a segunda palavra-chave: ")
+    
     return url, search_depth, keyword1, keyword2
 
 
@@ -118,7 +116,7 @@ def crawl(url: str, depth: int) -> tuple:
     return links, contents
 
 
-def print_links(links: list):
+def print_links(links: list, contents: list) -> None:
     """
     Print the links found in the specified URL.
 
@@ -128,11 +126,11 @@ def print_links(links: list):
     # -- Print the links found
     print(f"Quantidade de links encontrados: {len(links)}")
     print("Links encontrados:")
-    for count, link in enumerate(links, start=1):
+    for count, (link, content) in enumerate(zip(links, contents), start=1):
         if count > 10:
             print("...")
             break
-        print(f"{count}. {link}")
+        print(f"{count}. {link}\n{content[:100]}...\n")
 
 
 def indexing_links(links: list, db_config: dict) -> bool:
@@ -162,6 +160,80 @@ def indexing_links(links: list, db_config: dict) -> bool:
 
     return True
 
+
+def search_keywords(pages: list, keywords: str) -> dict:
+    """
+    Search for keywords in the pages and return a dictionary with the results.
+
+    Parameters:
+        pages - list: List of pages (tuples of URL and content) to search in
+        keywords - str: Comma-separated string of keywords to search for (e.g., "keyword1, keyword2")
+    
+    Returns:
+        dict: Dictionary with the results of the keyword search
+    """
+    # -- Create a DocumentAnalyzer instance
+    analyzer = DocumentAnalyzer(pages, keywords)
+
+    # -- Search for keywords in the pages
+    results = analyzer.get_document_analyses()
+
+    return results
+
+
+def print_search_results(results: list) -> None:
+    """
+    Print the search results.
+
+    Parameters:
+        results - list: List of analysis dictionaries.
+    """
+    # -- Print the search results
+    print("Resultados da análise:")
+    # -- Print the first 10 results
+    for result in results[:10]:
+        print("URL:", result['url'])
+        print("Similaridade:", f"{result['similarity']:.2f}")
+        print("Pontuação:", f"{result['score']:.2f}")
+        print("Palavras-chave:")
+        for kw in result["keywords"]:
+            print(f"  - {kw['word']} (ocorrências: {len(kw['positions'])})")
+        print()
+    
+
+def save_analyses(results: list, db_config: dict) -> None:
+    """
+    Save the document analysis results into the database.
+
+    Parameters:
+        results - list: List of analysis dictionaries.
+        db_config - dict: Database configuration.
+    """
+    # -- Create an Indexer instance
+    indexer = Indexer(db_config)
+
+     # -- Check if the database connection is valid
+    if not indexer.db_connection:
+        print("Erro ao conectar ao banco de dados.")
+        return False
+
+    # -- Save each analysis result into the database
+    for result in results:
+
+        # -- Create a PageAnalysis instance
+        analysis = PageAnalysis(
+            url=result["url"],
+            similarity=result["similarity"],
+            score=result["score"],
+            keywords=[
+                KeywordInfo(word=kw["word"], positions=kw["positions"])
+                for kw in result["keywords"]
+            ]
+        )
+
+        # -- Save the analysis to the database
+        if not indexer.save_analysis(analysis):
+            print(f"Erro ao indexar resultados da análise para a URL: {result['url']}")
 
 def main():
     """
@@ -196,7 +268,7 @@ def main():
         sys.exit()
 
     # -- Print the links found
-    print_links(links)
+    print_links(links, contents)
 
     # INDEXING
     # ----------------------------------------------------------------------
@@ -210,15 +282,40 @@ def main():
 
     # ANALYSIS
     # ----------------------------------------------------------------------
+    print("\n-----------------------------------------------------")
+    print("ANALISANDO DOCUMENTOS...")
+
+    # -- Prepare the documents for analysis
+    pages = list(zip(links, contents))
+    keywords = f"{keyword1}, {keyword2}"
+
+    # -- Search for keywords in the pages
+    results = search_keywords(pages, keywords)
+    
+    if not results:
+        print("Nenhum resultado encontrado.")
+        sys.exit()
+    else:
+        print_search_results(results)
+
+    # INDEXING RESULTS
+    # ----------------------------------------------------------------------
+    print("\n-----------------------------------------------------")
+    print("INDEXANDO RESULTADOS DA ANÁLISE...")
+    # -- Save the analysis results into the database
+    save_analyses(results, config["DATABASE"])
+    print("Indexação dos resultados da análise concluída com sucesso.")
+
     # TODO:
     # -- Create a DocumentAnalyzer instance and evaluate the documents
     # analyzer = DocumentAnalyzer()
-    # best_link = analyzer.evaluate_documents(links, keyword1, keyword2)
+    # results = analyzer.evaluate_documents(links, keyword1, keyword2)
 
-    # if best_link:
-    # print(f"O link mais bem avaliado é: {best_link}")
+    # if results:
+    #     best_link = max(results, key=lambda x: x['score'])
+    #     print(f"O link mais bem avaliado é: {best_link['url']} com uma pontuação de {best_link['score']}.")
     # else:
-    # print("Nenhum link encontrado ou avaliado.")
+    #     print("Nenhum resultado de análise disponível.")
 
 
 if __name__ == "__main__":
