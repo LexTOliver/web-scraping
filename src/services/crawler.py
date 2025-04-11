@@ -15,6 +15,7 @@ from src.utils.config import get_logger
 # -- Initialize the logger
 logger = get_logger()
 
+
 class WebCrawler:
     """
     Class for crawling into the web pages.
@@ -68,7 +69,7 @@ class WebCrawler:
             response.raise_for_status()  # Raise an error for bad responses
             # TODO: Improve the encoding detection; it might fail for some pages
             response.encoding = "utf-8"  # Set UTF-8 encoding
-            
+
             # -- Get the text content
             return response.text
         except requests.RequestException as e:
@@ -114,7 +115,7 @@ class WebCrawler:
             str: The text content of the page found in the URL
         """
         # -- Parse the HTML content
-        soup = BeautifulSoup(html, "lxml", from_encoding="utf-8")
+        soup = BeautifulSoup(html, "lxml")
 
         # -- Decompose the script and style tags
         for tags in soup(["script", "style"]):
@@ -134,7 +135,7 @@ class WebCrawler:
             set: A set of links found in the HTML content
         """
         # -- Parse the HTML content
-        soup = BeautifulSoup(html, "lxml", from_encoding="utf-8")
+        soup = BeautifulSoup(html, "lxml")
 
         # -- Find all links in the HTML content
         links = set()
@@ -173,7 +174,7 @@ class WebCrawler:
         """
         # -- Initialize a queue for BFS
         queue = deque([(url, 0)])  # current_url, current_depth
-        
+
         while queue:
             batch = []
             next_queue = deque()

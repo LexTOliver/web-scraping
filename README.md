@@ -22,20 +22,24 @@ web-scraping-project
 ├── data
 │   └── database.db           # SQLite database for storing documents and metadata
 ├── src
+│   ├── models
+│   │   └── page_analysis.py  # Contains the PageAnalysis class for analyzing web pages
 |   ├── pages
 │   │   ├── analyze_page.py   # Streamlit page for document analysis
 │   │   └── crawl_page.py     # Streamlit page for web crawling
-|   ├── utils
-│   |   ├── config.py         # Configuration settings for the application
-│   |   ├── mysql_schema.py   # MySQL schema functions for creating and managing the database
-│   |   └── sqlite_schema.py  # SQLite schema functions for creating and managing the database
-│   ├── analyzer.py           # Contains the DocumentAnalyzer class for evaluating documents
-│   ├── crawler.py            # Contains the WebCrawler class for fetching content and links
-│   └── indexer.py            # Contains the Indexer class for storing and retrieving documents
+│   ├── services
+│   │   ├── 
+|   │   ├── analyzer.py       # Contains the DocumentAnalyzer class for evaluating documents
+|   │   ├── crawler.py        # Contains the WebCrawler class for fetching content and links
+|   │   └── indexer.py        # Contains the Indexer class for storing and retrieving documents
+|   └── utils
+│       ├── config.py         # Configuration settings for the application
+│       ├── mysql_schema.py   # MySQL schema functions for creating and managing the database
+│       └── sqlite_schema.py  # SQLite schema functions for creating and managing the database
 ├── .gitignore                # Files and directories to be ignored by Git
 ├── .python-version           # Python version for the project
 ├── app.py                    # Streamlit application entry point
-├── example_config.yaml      # Example configuration file for the application
+├── example_config.yaml       # Example configuration file for the application
 ├── LICENSE                   # License file for the project
 ├── main.py                   # Entry point of the application
 ├── pyproject.toml            # Project metadata and dependencies

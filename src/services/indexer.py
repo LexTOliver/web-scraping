@@ -3,10 +3,12 @@ This module contains the logic for indexing the crawled data.
 It includes functions to connect to the database, insert data, and fetch data.
 """
 
+from src.models.page_analysis import PageAnalysis
 from src.utils.config import get_logger
 
 # -- Initialize the logger
 logger = get_logger()
+
 
 def _connect_to_database(db_config: dict) -> object:
     """
@@ -256,3 +258,39 @@ class Indexer:
 
         # -- Fetch all results
         return self.cursor.fetchall()
+
+    def save_analysis(self, analysis: PageAnalysis) -> bool:
+        """
+        Save the full analysis result into the database.
+
+        Parameters:
+            analysis - PageAnalysis: The result of the analysis for a given page.
+
+        Returns:
+            bool: True if the operation was successful, False otherwise.
+        """
+        try:
+            # -- Insert URL and get ID
+            idurl = self.insert_url(analysis.url)
+            if idurl is None:
+                logger.warning(f"Could not insert URL: {analysis.url}")
+                return False
+
+            for kw in analysis.keywords:
+                # -- Insert word and get ID
+                idpalavra = self.insert_word(kw.word)
+                if idpalavra is None:
+                    logger.warning(f"Could not insert keyword: {kw.word}")
+                    continue
+
+                # -- Insert word location
+                for pos in kw.positions:
+                    self.insert_word_location(idurl, idpalavra, pos)
+
+            logger.info(f"Analysis successfully saved for {analysis.url}")
+            return True
+
+        except Exception as e:
+            logger.error(f"Error saving analysis for {analysis.url}")
+            logger.debug(e, exc_info=True)
+            return False
