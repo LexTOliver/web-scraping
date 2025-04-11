@@ -18,8 +18,6 @@ It processes the documents with spaCy, as follows:
 import numpy as np
 import pt_core_news_md
 from collections import defaultdict
-from concurrent.futures import ProcessPoolExecutor
-from time import time
 from src.utils.config import get_logger
 from src.models.page_analysis import PageAnalysis, KeywordInfo
 
