@@ -307,17 +307,6 @@ def main():
     save_analyses(results, config["DATABASE"])
     print("Indexação dos resultados da análise concluída com sucesso.")
 
-    # TODO:
-    # -- Create a DocumentAnalyzer instance and evaluate the documents
-    # analyzer = DocumentAnalyzer()
-    # results = analyzer.evaluate_documents(links, keyword1, keyword2)
-
-    # if results:
-    #     best_link = max(results, key=lambda x: x['score'])
-    #     print(f"O link mais bem avaliado é: {best_link['url']} com uma pontuação de {best_link['score']}.")
-    # else:
-    #     print("Nenhum resultado de análise disponível.")
-
 
 if __name__ == "__main__":
     main()
