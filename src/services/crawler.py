@@ -67,7 +67,9 @@ class WebCrawler:
             # -- Try to fetch the page and return the content
             response = requests.get(url)
             response.raise_for_status()  # Raise an error for bad responses
-            response.encoding = response.apparent_encoding if response.apparent_encoding else "utf-8"
+            response.encoding = (
+                response.apparent_encoding if response.apparent_encoding else "utf-8"
+            )
 
             # -- Get the text content
             return response.text
@@ -168,8 +170,8 @@ class WebCrawler:
 
         Returns:
             tuple: A tuple containing two lists:
-                - all_links: A list of all links found
-                - all_contents: A list of the contents of the pages found
+                - List of links found
+                - List of contents of the pages found
         """
         # -- Initialize a queue for BFS
         queue = deque([(url, 0)])  # current_url, current_depth
@@ -203,4 +205,4 @@ class WebCrawler:
 
             queue = next_queue
 
-        return self.visited_links.keys(), self.visited_links.values()
+        return list(self.visited_links.keys()), list(self.visited_links.values())

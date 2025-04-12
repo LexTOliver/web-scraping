@@ -23,7 +23,7 @@ class KeywordInfo:
     @property
     def count(self) -> int:
         return len(self.positions)
-    
+
     def __repr__(self) -> str:
         return f"KeywordInfo(word={self.word}, positions={self.positions}, count={self.count})"
 
@@ -40,6 +40,9 @@ class PageAnalysis:
         keywords - List[KeywordInfo]: A list of keyword information.
         score - float: The score of the page analysis.
         frequency - int: The frequency of keywords in the page analysis.
+
+    Methods:
+        to_dict: Converts the PageAnalysis object to a dictionary.
     """
 
     url: str

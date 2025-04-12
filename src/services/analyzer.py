@@ -70,7 +70,7 @@ class DocumentAnalyzer:
         for page in pages:
             # -- Get the URL and content from the page
             url, content = page
-        
+
             # -- Process the content with spaCy
             content = content.lower()  # Lowercase the content
             doc = nlp(content)  # Process the content with spaCy
@@ -79,13 +79,15 @@ class DocumentAnalyzer:
                 for token in doc
                 if not token.is_stop and not token.is_punct
             ]
-            
-            documents.append({
-                "url": url,  # Source URL
-                "content": content,  # Original content
-                "doc": doc,  # Processed document with spaCy object
-                "words": word_list,  # Bag of lemmatized words
-            })
+
+            documents.append(
+                {
+                    "url": url,  # Source URL
+                    "content": content,  # Original content
+                    "doc": doc,  # Processed document with spaCy object
+                    "words": word_list,  # Bag of lemmatized words
+                }
+            )
 
         logger.info("Documents were generated based on the pages.")
         return documents
@@ -184,7 +186,7 @@ class DocumentAnalyzer:
                 KeywordInfo(word=w, positions=positions)
                 for w, positions in keyword_locations.items()
             ]
-            
+
             # -- Append the analysis to the results
             # -- Calculate the average similarity from the keywords in the document
             analyses.append(
@@ -271,7 +273,6 @@ class DocumentAnalyzer:
         # -- Sort the documents by score in descending order
         scored_docs.sort(key=lambda x: x.score, reverse=True)
         return [a.to_dict() for a in scored_docs]
-    
 
     def get_document_analyses(self) -> list:
         """

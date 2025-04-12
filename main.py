@@ -18,6 +18,7 @@ from src.services.crawler import WebCrawler
 from src.services.indexer import Indexer
 from src.utils.config import load_config
 
+
 # TODO: Add argparse for command line arguments
 def get_user_inputs() -> tuple:
     """
@@ -30,7 +31,7 @@ def get_user_inputs() -> tuple:
     search_depth = input("Digite a profundidade de busca (0 a 2): ")
     keyword1 = input("Digite a primeira palavra-chave: ")
     keyword2 = input("Digite a segunda palavra-chave: ")
-    
+
     return url, search_depth, keyword1, keyword2
 
 
@@ -161,16 +162,16 @@ def indexing_links(links: list, db_config: dict) -> bool:
     return True
 
 
-def search_keywords(pages: list, keywords: str) -> dict:
+def search_keywords(pages: list, keywords: str) -> list:
     """
     Search for keywords in the pages and return a dictionary with the results.
 
     Parameters:
         pages - list: List of pages (tuples of URL and content) to search in
         keywords - str: Comma-separated string of keywords to search for (e.g., "keyword1, keyword2")
-    
+
     Returns:
-        dict: Dictionary with the results of the keyword search
+        list: List of dictionaries containing the analysis results for each page
     """
     # -- Create a DocumentAnalyzer instance
     analyzer = DocumentAnalyzer(pages, keywords)
@@ -192,14 +193,14 @@ def print_search_results(results: list) -> None:
     print("Resultados da análise:")
     # -- Print the first 10 results
     for result in results[:10]:
-        print("URL:", result['url'])
+        print("URL:", result["url"])
         print("Similaridade:", f"{result['similarity']:.2f}")
         print("Pontuação:", f"{result['score']:.2f}")
         print("Palavras-chave:")
         for kw in result["keywords"]:
             print(f"  - {kw['word']} (ocorrências: {len(kw['positions'])})")
         print()
-    
+
 
 def save_analyses(results: list, db_config: dict) -> None:
     """
@@ -212,14 +213,13 @@ def save_analyses(results: list, db_config: dict) -> None:
     # -- Create an Indexer instance
     indexer = Indexer(db_config)
 
-     # -- Check if the database connection is valid
+    # -- Check if the database connection is valid
     if not indexer.db_connection:
         print("Erro ao conectar ao banco de dados.")
         return False
 
     # -- Save each analysis result into the database
     for result in results:
-
         # -- Create a PageAnalysis instance
         analysis = PageAnalysis(
             url=result["url"],
@@ -228,12 +228,13 @@ def save_analyses(results: list, db_config: dict) -> None:
             keywords=[
                 KeywordInfo(word=kw["word"], positions=kw["positions"])
                 for kw in result["keywords"]
-            ]
+            ],
         )
 
         # -- Save the analysis to the database
         if not indexer.save_analysis(analysis):
             print(f"Erro ao indexar resultados da análise para a URL: {result['url']}")
+
 
 def main():
     """
@@ -291,7 +292,7 @@ def main():
 
     # -- Search for keywords in the pages
     results = search_keywords(pages, keywords)
-    
+
     if not results:
         print("Nenhum resultado encontrado.")
         sys.exit()
