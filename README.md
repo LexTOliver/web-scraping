@@ -4,15 +4,14 @@ This project is designed to work as a Search Engine for a specific website. It a
 
 ## Search Score Criteria
 The application evaluates documents based on the following criteria:
-- **Vector Similarity** (TODO): The similarity score between the document and the keywords.
-- **Keyword Presence**: The number of times the keywords appear in the documents.
+- **Vector Similarity**: The similarity score between the document and the keywords.
+- **Keyword Frequency**: The number of times the keywords appear in the documents.
 - **Keyword Location**: The position of the keywords (the minimum sum of the two words) in the documents.
 - **Keyword Distance**: The distance between the two keywords in the documents.
 
 ## Features
-
 - **Web scraping**: Fetches content from a specified URL and extracts links, going a user-defined depth.
-- **Indexing**: Stores the scraped data in a SQLite database, allowing for efficient retrieval and analysis.
+- **Indexing**: Stores the scraped data in a database, allowing for efficient retrieval and analysis.
 - **Document analysis**: Evaluates documents based on user-defined keywords and criteria. The application calculates scores for each document and identifies the best ones.
 
 ## Project Structure
@@ -28,7 +27,6 @@ web-scraping-project
 │   │   ├── analyze_page.py   # Streamlit page for document analysis
 │   │   └── crawl_page.py     # Streamlit page for web crawling
 │   ├── services
-│   │   ├── 
 |   │   ├── analyzer.py       # Contains the DocumentAnalyzer class for evaluating documents
 |   │   ├── crawler.py        # Contains the WebCrawler class for fetching content and links
 |   │   └── indexer.py        # Contains the Indexer class for storing and retrieving documents
@@ -85,7 +83,7 @@ You can run the application via command line or through a Streamlit interface.
 
     Run the following command in your terminal:
     ```
-    python src/main.py
+    python3 main.py
     ```
 
     Follow the prompts to enter a URL, depth for search (up to 2) and two keywords. The application will scrape the specified webpage, retrieve links, and analyze the documents based on the criteria.

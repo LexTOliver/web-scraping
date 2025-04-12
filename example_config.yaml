@@ -5,8 +5,8 @@
 # For MySQL
 # DATABASE:
 #   DBTYPE: MySQL                   # The type of database (mysql or sqlite)
-#   HOST: <host>                 # The host where the database is located
-#   USER: <user>                      # The username to connect to the database
+#   HOST: <host>                    # The host where the database is located
+#   USER: <user>                    # The username to connect to the database
 #   PASSWORD: <password>            # The password for the database user
 #   DBNAME: <db-name>               # The name of the database to connect to
 #   DBPATH: <path/to/database.sql>  # The path to the SQLite database file
@@ -24,4 +24,4 @@ DATABASE:
 LOGGING:
   LEVEL: DEBUG                      # The logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
   FILENAME: logs/app.log            # The file where logs will be saved
-  HANDLERS: [file, console]         # The handlers to use for logging (console, file, or both)
+  HANDLERS: [file]                  # The handlers to use for logging (console, file, or both)

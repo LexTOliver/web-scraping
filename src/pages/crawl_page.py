@@ -125,7 +125,7 @@ def crawl_url(url: str, depth: int) -> list:
     start_time = time()
 
     # -- Fetch links from the main page and its subpages
-    with st.spinner("🔄 Buscando links..."):
+    with st.spinner("Buscando links..."):
         links, contents = crawler.fetch_links(url, depth)
 
     # -- Check if any links were found
